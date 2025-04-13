@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TetegramBotMessageType {
+  ASK
+  TRAIN
+  START_TRAIN
+  APPROVE
+}
+
+model TelegramBotMessages {
+  id          Int                    @id @default(autoincrement()) @map(name: "id")
+  chatId      String                 @map(name: "chat_id")
+  messageId   String                 @map(name: "message_id")
+  type        TetegramBotMessageType @map(name: "type")
+  text        String?                @map(name: "text")
+  typeMessage String?                @map(name: "type_message")
+
+  /// [TelegramSender]
+  sender    Json?     @map(name: "sender")
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  replyAt   DateTime? @map(name: "reply_at")
+
+  @@map("telegram-bot-messages")
+}
