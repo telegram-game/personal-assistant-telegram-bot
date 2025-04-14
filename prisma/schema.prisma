@@ -24,6 +24,12 @@ enum TetegramBotMessageType {
   APPROVE
 }
 
+enum TrainDataStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
 model TelegramBotMessages {
   id          Int                    @id @default(autoincrement()) @map(name: "id")
   chatId      String                 @map(name: "chat_id")
@@ -33,9 +39,23 @@ model TelegramBotMessages {
   typeMessage String?                @map(name: "type_message")
 
   /// [TelegramSender]
-  sender    Json?     @map(name: "sender")
-  createdAt DateTime  @default(now()) @map(name: "created_at")
-  replyAt   DateTime? @map(name: "reply_at")
+  sender     Json?        @map(name: "sender")
+  createdAt  DateTime     @default(now()) @map(name: "created_at")
+  replyAt    DateTime?    @map(name: "reply_at")
+  TraninData TraninData[]
 
   @@map("telegram-bot-messages")
+}
+
+model TraninData {
+  id                   Int             @id @default(autoincrement()) @map(name: "id")
+  data                 String          @map(name: "data")
+  telegramBotMessageId Int?            @unique() @map(name: "telegram_bot_message_id")
+  status               TrainDataStatus @map(name: "status")
+  createdAt            DateTime        @default(now()) @map(name: "created_at")
+  updatedAt            DateTime?        @updatedAt @map(name: "updated_at")
+
+  telegramBotMessages TelegramBotMessages? @relation(fields: [telegramBotMessageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("train_data")
 }

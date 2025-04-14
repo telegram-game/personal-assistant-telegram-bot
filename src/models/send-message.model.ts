@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
   IsObject,
   IsOptional,
@@ -9,25 +9,27 @@ import {
 export class ReplyParamenters {
   @IsOptional()
   @IsString()
-  @Expose({ name: 'message_id' })
   messageId?: string;
 
   @IsOptional()
   @IsString()
-  @Expose({ name: 'chat_id' })
   chatId?: string;
 }
 
 export class SendMessageOption {
   @IsOptional()
   @IsString()
-  @Expose({ name: 'message_thread_id' })
   messageThreadId?: string;
+
+  @IsOptional()
+  @IsString()
+  replyToMessageId?: string;
 
   @IsOptional()
   @IsObject()
   @ValidateNested()
-  reply_parameters?: ReplyParamenters;
+  @Type(() => ReplyParamenters)
+  replyParameters?: ReplyParamenters;
 }
 
 export class SendMessagePayload {
@@ -40,5 +42,6 @@ export class SendMessagePayload {
   @IsOptional()
   @IsObject()
   @ValidateNested()
+  @Type(() => SendMessageOption)
   options?: SendMessageOption;
 }

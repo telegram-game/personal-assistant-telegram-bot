@@ -14,7 +14,6 @@ export class TelegramBotService {
     }
 
     sendMessage(data: SendMessagePayload): Promise<void> {
-        console.log(`${this.telegramBotServiceUrl}/internal/api/v1.0/messages/send`, data)
         return this.internalHttpClientService.post(`${this.telegramBotServiceUrl}/internal/api/v1.0/messages/send`, data);
     }
 }

@@ -29,4 +29,12 @@ export class TelegramMessageRepository extends BaseRepository {
 
     return train;
   }
+
+  public async getById(id: number): Promise<TelegramBotMessages> {
+    return this.client.telegramBotMessages.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
 }

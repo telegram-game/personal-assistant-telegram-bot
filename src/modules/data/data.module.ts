@@ -6,11 +6,12 @@ import { TelegramMessageService } from './services/telegram-message.service';
 import { QueueProducerModule } from '../queue';
 import { QueueConsumerModule } from '../queue/queue-consumer.module';
 import { SharedModule } from '../shared/shared.module';
+import { TrainDataRepository } from './repositories/train-data.repository';
 
 @Module({
   imports: [PrismaModule, QueueProducerModule, SharedModule],
   controllers: [TelegramMessageController],
-  providers: [TelegramMessageRepository, TelegramMessageService],
+  providers: [TelegramMessageRepository, TelegramMessageService, TrainDataRepository],
 })
 export class DataModule {}
 

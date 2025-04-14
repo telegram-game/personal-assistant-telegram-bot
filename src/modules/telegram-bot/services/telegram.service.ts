@@ -73,6 +73,7 @@ export class TelegramService {
         message: string,
         options?: {
             message_thread_id?: string;
+            reply_to_message_id?: string;
             reply_parameters?: {
                 message_id: string;
                 chat_id: string;

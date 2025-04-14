@@ -15,10 +15,11 @@ export class TelegramMessageController {
     @Body() data: SendMessagePayload,
   ): Promise<void> {
     await this.telegramService.send(data.chatId, data.message, {
-      reply_parameters: data.options?.reply_parameters ? {
-        message_id: data.options.reply_parameters?.messageId,
-        chat_id: data.options.reply_parameters?.chatId,
+      reply_parameters: data.options?.replyParameters ? {
+        message_id: data.options.replyParameters?.messageId,
+        chat_id: data.options.replyParameters?.chatId,
       } : undefined,
+      reply_to_message_id: data.options?.replyToMessageId,
       message_thread_id: data.options?.messageThreadId,
     });
   }
