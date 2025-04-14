@@ -12,12 +12,13 @@ def build_model(name, from_model_path, data):
 
     model_provider = ModelProvider()
     model = model_provider.get_model(model_version, config)
-    model.set_device(device)
+    if device == "cuda":
+        model.set_device(device)
     
     if from_model_path:
         model.load(from_model_path)
 
-    model.start_train(data)
+    model.start_train(data, num_epochs=10)
     save_model(model, f"{model_version}_{name}.pth")
 
 

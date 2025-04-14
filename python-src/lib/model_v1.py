@@ -82,7 +82,7 @@ class GPT2Model(IModel):
             print("Train loss: ", train_loss)
         
         optimizer = torch.optim.AdamW(self.parameters(), lr=0.0004, weight_decay=0.1)
-        self.train_model(self, train_loader, optimizer, self.device, num_epochs)
+        self.train_model(train_loader, optimizer, self.device, num_epochs)
 
         print ("Training completed.")
         self.can_load = False
@@ -101,7 +101,7 @@ class GPT2Model(IModel):
         num_workers = 0
 
         # Create dataset
-        dataset = GPTDataset(data, self.gpt2.tokenizer, max_length, stride)
+        dataset = GPTDataset(data, self.tokenizer, max_length, stride)
 
         # Create dataloader
         dataloader = DataLoader(
