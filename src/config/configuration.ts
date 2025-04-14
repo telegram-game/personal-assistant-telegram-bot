@@ -41,5 +41,6 @@ export default (): Configuration => {
     approveChatId: process.env.APPROVE_CHAT_ID,
 
     telegramBotServiceUrl: process.env.TELEGRAM_BOT_SERVICE_URL,
+    predictionServiceUrl: process.env.PREDICTION_SERVICE_URL,
   };
 };

@@ -37,6 +37,8 @@ export class TelegramMessageService {
 
   public async receiveTelegramMessageInternalProcess(data: TelegramMessagePayload): Promise<void> {
     switch (data.type) {
+      case 'ASK':
+        // await this.telegramMessageProducer.sendMessage({
       case 'TRAIN':
         await this.processTrainType(data);
         break;
@@ -45,6 +47,12 @@ export class TelegramMessageService {
       default:
         break;
     }
+  }
+
+  private async processAskType(
+    data: TelegramMessagePayload,
+  ): Promise<void> {
+    // const preditedMessage = 
   }
 
   private async processTrainType(
