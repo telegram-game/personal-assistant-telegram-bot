@@ -9,7 +9,6 @@ class IModel(nn.Module):
         self.is_loaded = False
         self.can_load = True
         
-    @abstractmethod
     def load(self, path):
         if not path:
             raise ValueError("Model path is required")
@@ -37,6 +36,10 @@ class IModel(nn.Module):
 
     @abstractmethod
     def decode(self, path):
+        pass
+
+    @abstractmethod
+    def predict(self, data):
         pass
 
     def set_device(self, device):

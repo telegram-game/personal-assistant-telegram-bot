@@ -69,9 +69,35 @@ class GPT2Model(IModel):
     def decode(self, token_ids):
         flat = token_ids.squeeze(0) # remove batch dimension
         return self.tokenizer.decode(flat.tolist())
+    
+    def predict(self, data, max_new_tokens=10, context_size=256):
+        idx = self.encode(data).to(self.device)  # (batch, n_tokens)
 
-    def load(self, path):
-        self.load(path)
+        for _ in range(max_new_tokens):
+
+            # Crop current context if it exceeds the supported context size
+            # E.g., if LLM supports only 5 tokens, and the context size is 10
+            # then only the last 5 tokens are used as context
+            idx_cond = idx[:, -context_size:]
+
+            # Get the predictions
+            with torch.no_grad():
+                logits = self(idx_cond)
+
+            # Focus only on the last time step
+            # (batch, n_tokens, vocab_size) becomes (batch, vocab_size)
+            logits = logits[:, -1, :]
+
+            # Apply softmax to get probabilities
+            probas = torch.softmax(logits, dim=-1)  # (batch, vocab_size)
+
+            # Get the idx of the vocab entry with the highest probability value
+            idx_next = torch.argmax(probas, dim=-1, keepdim=True)  # (batch, 1)
+
+            # Append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1)  # (batch, n_tokens+1)
+
+        return self.decode(idx)
 
     def start_train(self, data, num_epochs):
         train_loader = self.create_data_loader(data)
@@ -94,13 +120,14 @@ class GPT2Model(IModel):
     def create_data_loader(self, data):
         # Get config
         max_length = self.config["context_length"]
-        stride = self.config["context_length"]
+        stride = self.config["stride"]
         batch_size = 2
         shuffle = True
         drop_last = True
         num_workers = 0
 
         # Create dataset
+        print("jerry", data, self.tokenizer, max_length, stride)
         dataset = GPTDataset(data, self.tokenizer, max_length, stride)
 
         # Create dataloader
