@@ -17,7 +17,7 @@
     "start:dev:data": "APP_NAME=DATA_SERVICE PORT=4002 nest start --watch",
     "start:dev:data-consumer": "APP_NAME=DATA_CONSUMER PORT=4003 nest start --watch",
     "start:dev:prediction": "APP_NAME=PREDICTION_SERVICE uvicorn --app-dir  ./python_src --reload --host=0.0.0.0 --port=4004 server:app",
-    "start:dev:train": "APP_NAME=TRAIN_SERVICE uvicorn --app-dir  ./python_src --reload --host=0.0.0.0 --port=4005 server:app",
+    "start:dev:train": "APP_NAME=TRAIN_SERVICE ./.venv/bin/uvicorn --app-dir ./python_src --reload --host=0.0.0.0 --port=4005 server:app",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "start:client": "http-server ./client",

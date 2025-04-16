@@ -1,6 +1,6 @@
 import torch
 from data_util import load_example_data
-from config import get_model_config, get_config
+from config.config import get_model_config, get_config
 from lib.model_provider import ModelProvider
 from data_util import save_model
 

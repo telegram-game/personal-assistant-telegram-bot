@@ -22,6 +22,18 @@ class IModel(nn.Module):
         self.eval()
         self.is_loaded = True
 
+    def reload_model(self, path: str):
+        if not self.is_loaded:
+            raise ValueError("Model is not loaded please use load method")
+        if not path:
+            raise ValueError("Model path is required")
+        if self.device is None:
+            raise ValueError("Device is not set")
+        if not self.can_load:
+            raise ValueError("Model cannot be loaded from the specified path")
+        self.load_state_dict(torch.load(path, map_location=self.device))
+        self.eval()
+
     @abstractmethod
     def start_train(self, data):
         pass

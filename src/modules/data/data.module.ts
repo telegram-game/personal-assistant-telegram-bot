@@ -7,11 +7,14 @@ import { QueueProducerModule } from '../queue';
 import { QueueConsumerModule } from '../queue/queue-consumer.module';
 import { SharedModule } from '../shared/shared.module';
 import { TrainDataRepository } from './repositories/train-data.repository';
+import { AIModelRepository } from './repositories/ai-model.repository';
+import { AIModelService } from './services/ai-model.service';
+import { AIModelController } from './controllers/ai-model.internal.controller';
 
 @Module({
   imports: [PrismaModule, QueueProducerModule, SharedModule],
-  controllers: [TelegramMessageController],
-  providers: [TelegramMessageRepository, TelegramMessageService, TrainDataRepository],
+  controllers: [TelegramMessageController, AIModelController],
+  providers: [TelegramMessageRepository, TelegramMessageService, TrainDataRepository, AIModelRepository, AIModelService],
 })
 export class DataModule {}
 

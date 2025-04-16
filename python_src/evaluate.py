@@ -1,7 +1,7 @@
 import torch
 from data_util import load_data
 from lib.model_provider import ModelProvider
-from config import get_model_config
+from config.config import get_model_config
 
 def evaluate_model(from_model_path, test_data):
     device = torch.device("cuda" if torch.mps.is_available() else "cpu")

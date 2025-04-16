@@ -10,20 +10,18 @@ def get_model_config():
             "vocab_size": 50257,
             "emb_dim": 768,
             "hidden_dim": 200,
-            "context_length": 64,
+            "context_length": 256,
             "drop_rate": 0.1,
             "n_layers": 12,
             "n_heads": 12,
             "qkv_bias": False,
-            "stride": 8,
+            "stride": 32,
         }
     
 def get_config():
     return {
-        "host": "localhost",
-        "port": 8000,
+        "app_name": os.getenv("APP_NAME", "PREDICTION_SERVICE"),
         "device": "mps",
         "model_config": get_model_config(),
         "data_service_url": os.getenv("DATA_SERVICE_URL", "http://localhost:4002"),
-        "app_name": os.getenv("APP_NAME", "PREDICTION_SERVICE"),
     }

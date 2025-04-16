@@ -60,3 +60,5 @@ docker-compose.yml
 
 __pycache__
 python_src/output
+output
+.venv
