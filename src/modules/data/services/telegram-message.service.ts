@@ -9,6 +9,11 @@ import { PrismaService } from 'src/modules/prisma';
 import { ConfigService } from '@nestjs/config';
 import { TrainDataRepository } from '../repositories/train-data.repository';
 import { TelegramMessageType } from 'src/models/telegram-mesage.model';
+import { AIModelRepository } from '../repositories/ai-model.repository';
+import dayjs from 'dayjs';
+import { BusinessException } from 'src/exceptions';
+import { ERROR_CODES } from 'src/constants/errors';
+import { BuildModelProducer } from 'src/modules/queue/producer/build-model-producer';
 
 @Injectable()
 export class TelegramMessageService {
@@ -18,7 +23,9 @@ export class TelegramMessageService {
     private readonly configService: ConfigService,
     private readonly telegramMessageRepository: TelegramMessageRepository,
     private readonly trainDataRepository: TrainDataRepository,
+    private readonly aiModelRepository: AIModelRepository,
     private readonly telegramMessageProducer: TelegramMessageProducer,
+    private readonly buildModelProducer: BuildModelProducer,
     private readonly telegramBotService: TelegramBotService,
     private readonly prismaService: PrismaService,
   ) {
@@ -37,13 +44,17 @@ export class TelegramMessageService {
 
   public async receiveTelegramMessageInternalProcess(data: TelegramMessagePayload): Promise<void> {
     switch (data.type) {
-      case 'ASK':
-        // await this.telegramMessageProducer.sendMessage({
-      case 'TRAIN':
+      case TelegramMessageType.ASK:
+        await this.processAskType(data);
+      case TelegramMessageType.TRAIN:
         await this.processTrainType(data);
         break;
-      case 'APPROVE':
+      case TelegramMessageType.APPROVE:
         await this.processApproveType(data);
+        break
+      case TelegramMessageType.START_TRAIN:
+        await this.processStartTrainType(data);
+        break;
       default:
         break;
     }
@@ -103,6 +114,7 @@ export class TelegramMessageService {
         data: message.typeMessage,
         telegramBotMessageId: message.id,
         status: TrainDataStatus.PENDING,
+        aiModelId: null,
         createdAt: new Date(), 
       });
 
@@ -115,6 +127,90 @@ export class TelegramMessageService {
         },
       });
     }, [this.trainDataRepository, this.telegramMessageRepository]);
+  }
+
+  private async processStartTrainType(
+    data: TelegramMessagePayload,
+  ): Promise<void> {
+    const hasPending = await this.aiModelRepository.hasPending();
+    if (hasPending) {
+      const errMessage = 'There is a pending train data';
+      await this.telegramBotService.sendMessage({
+        chatId: data.chatId,
+        message: errMessage,
+        options: {
+          replyToMessageId: data.messageId,
+        },
+      })
+      return;
+    }
+
+    await this.prismaService.transaction(async () => {
+      const now = new Date();
+
+      const message = await this.storeMessage({
+        type: TelegramMessageType.START_TRAIN,
+        messageId: data.messageId,
+        chatId: data.chatId,
+        originalMessage: data.originalMessage,
+        message: data.message,
+        sender: data.sender,
+      })
+
+      const getCurrentModel = await this.aiModelRepository.getCurrent();
+
+      const aiTranin = await this.aiModelRepository.create({
+        name: data.message || dayjs(now).format('YYYYMMDDHHmmss'),
+        description: data.originalMessage,
+        telegramBotMessageId: message.id,
+        path: '',
+        baseModelId: getCurrentModel?.id,
+        status: TrainDataStatus.PROCESSING,
+        createdAt: now,
+      });
+
+      const dataCount = await this.trainDataRepository.updateForTraining(aiTranin.id);
+
+      if (dataCount === 0) {
+        const errMessage = 'There is no train data to start';
+        await this.telegramBotService.sendMessage({
+          chatId: data.chatId,
+          message: errMessage,
+          options: {
+            replyToMessageId: data.messageId,
+          },
+        })
+        throw new BusinessException({
+          errorCode: ERROR_CODES.NO_TRAIN_DATA,
+          status: 400,
+        })
+      }
+
+      await this.buildModelProducer.sendMessage({
+        id: aiTranin.id,
+        name: aiTranin.name,
+        fromModelPath: getCurrentModel?.path,
+        dataFilePath: `output/${aiTranin.id}_${dayjs(now).format('YYYYMMDDHHmmss')}.pth`,
+        cid: data.cid,
+      });
+
+      const startTrainMessage = `Your train session has been started with the id: ${aiTranin.id}`;
+      await this.telegramBotService.sendMessage({
+        chatId: message.chatId,
+        message: startTrainMessage,
+        options: {
+          replyToMessageId: message.messageId,
+        },
+      });
+    }, [this.telegramMessageRepository, this.trainDataRepository, this.aiModelRepository])
+    .catch((err: Error) => {
+      if (err instanceof BusinessException && err.errorCode === ERROR_CODES.NO_TRAIN_DATA) {
+        return;
+      }
+
+      this.logger.error(err.message);
+      throw err;
+    });
   }
 
   private async storeMessage(data: TelegramMessagePayload): Promise<TelegramBotMessages> {

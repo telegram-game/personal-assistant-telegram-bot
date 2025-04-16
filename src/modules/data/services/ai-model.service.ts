@@ -18,4 +18,8 @@ export class AIModelService {
   public async getCurrent(): Promise<AIModels> {
     return await this.aiModelRepository.getCurrent();
   }
+
+  public async complete(aiModelId: number, path: string): Promise<void> {
+    await this.aiModelRepository.complete(aiModelId, path);
+  }
 }

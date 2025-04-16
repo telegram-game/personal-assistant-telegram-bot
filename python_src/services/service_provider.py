@@ -25,7 +25,7 @@ class ServiceProvider:
         self.config = cfg
         self.service_data = ServiceData()
 
-    def init(self):
+    async def init(self):
         config = self.config["model_config"]
         running_config = self.config["device"]
         device = torch.device(running_config if torch.mps.is_available() else "cpu")
@@ -42,7 +42,8 @@ class ServiceProvider:
             model = model_provider.get_model(model_version, config)
             model.set_device(device)
 
-            current_model = data_service.get_current_model()
+            current_model = await data_service.get_current_model()
+            print(f"Current model: {current_model}")
             if current_model is not None:
                 model_path = f"{os.getcwd()}/{current_model["path"]}"
                 print(f"Loading model from path: {model_path}")     
@@ -51,6 +52,7 @@ class ServiceProvider:
             self.service_data.add_service("prediction_service", model)
         elif app_name == "TRAIN_SERVICE":
             build_model_job = BuildModelJob(self)
+            build_model_job.start()
             self.service_data.add_service("build_model_job", build_model_job)
 
     def stop(self):

@@ -30,4 +30,25 @@ export class AIModelRepository extends BaseRepository {
       take: 1,
     });
   }
+
+  public async hasPending(): Promise<boolean> {
+    return !this.client.aIModels.findFirst({
+      where: {
+        status: TrainDataStatus.PENDING,
+      },
+    })
+  }
+
+  public async complete(id: number, path: string): Promise<void> {
+    await this.client.aIModels.update({
+      where: {
+        id,
+      },
+      data: {
+        status: TrainDataStatus.DONE,
+        path,
+        updatedAt: new Date(),
+      },
+    });
+  }
 }

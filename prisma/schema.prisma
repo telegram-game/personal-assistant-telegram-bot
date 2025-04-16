@@ -26,6 +26,7 @@ enum TetegramBotMessageType {
 
 enum TrainDataStatus {
   PENDING
+  PROCESSING
   DONE
   FAILED
 }
@@ -43,6 +44,7 @@ model TelegramBotMessages {
   createdAt  DateTime     @default(now()) @map(name: "created_at")
   replyAt    DateTime?    @map(name: "reply_at")
   TraninData TraninData[]
+  AIModels   AIModels?
 
   @@map("telegram-bot-messages")
 }
@@ -54,6 +56,7 @@ model TraninData {
   status               TrainDataStatus @map(name: "status")
   createdAt            DateTime        @default(now()) @map(name: "created_at")
   updatedAt            DateTime?       @updatedAt @map(name: "updated_at")
+  aiModelId            Int?            @map(name: "ai_model_id")
 
   telegramBotMessages TelegramBotMessages? @relation(fields: [telegramBotMessageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -61,17 +64,18 @@ model TraninData {
 }
 
 model AIModels {
-  id          Int     @id @default(autoincrement()) @map(name: "id")
-  name        String  @unique @map(name: "name")
-  description String? @map(name: "description")
-  path        String  @map(name: "path")
-  baseModelId Int?    @map(name: "base_model_id")
-  status      TrainDataStatus @map(name: "status") @default(PENDING)
+  id                   Int             @id @default(autoincrement()) @map(name: "id")
+  name                 String          @unique @map(name: "name")
+  description          String?         @map(name: "description")
+  telegramBotMessageId Int?            @unique() @map(name: "telegram_bot_message_id")
+  path                 String          @map(name: "path")
+  baseModelId          Int?            @map(name: "base_model_id")
+  status               TrainDataStatus @default(PENDING) @map(name: "status")
 
-  /// [TrainMetaData]
-  trainMetaData Json?     @map(name: "train_data")
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime? @updatedAt @map(name: "updated_at")
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  updatedAt DateTime? @updatedAt @map(name: "updated_at")
+
+  telegramBotMessages TelegramBotMessages? @relation(fields: [telegramBotMessageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("ai_models")
 }

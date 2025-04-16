@@ -24,4 +24,10 @@ def get_config():
         "device": "mps",
         "model_config": get_model_config(),
         "data_service_url": os.getenv("DATA_SERVICE_URL", "http://localhost:4002"),
+        "redis_host": os.getenv("REDIS_HOST", "localhost"),
+        "redis_port": os.getenv("REDIS_PORT", 63791),
+        "redis_user": os.getenv("REDIS_USER", None),
+        "redis_password": os.getenv("REDIS_PASSWORD", None),
+        "queue_prefix": "{prefix}:queues",
+        "build_model_queue_name": "build-model-queue",
     }

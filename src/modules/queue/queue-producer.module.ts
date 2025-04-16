@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
-import { QUEUE_PREFIX, TELEGRAM_MESSAGE_QUEUE } from 'src/constants';
+import { BUILD_MODEL_QUEUE, QUEUE_PREFIX, TELEGRAM_MESSAGE_QUEUE } from 'src/constants';
 import { CachingModule } from '../caching';
 import { ConfigService } from '@nestjs/config';
 import { TelegramMessageProducer } from './producer/telegram-message-producer';
+import { BuildModelProducer } from './producer/build-model-producer';
 
 @Module({
   imports: [
@@ -39,8 +40,15 @@ import { TelegramMessageProducer } from './producer/telegram-message-producer';
         removeOnFail: true,
       },
     }),
+    BullModule.registerQueue({
+      name: BUILD_MODEL_QUEUE,
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    }),
   ],
-  providers: [TelegramMessageProducer],
-  exports: [TelegramMessageProducer],
+  providers: [TelegramMessageProducer, BuildModelProducer],
+  exports: [TelegramMessageProducer, BuildModelProducer],
 })
 export class QueueProducerModule {}

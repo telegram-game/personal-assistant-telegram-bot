@@ -1,4 +1,4 @@
-import { IsEnum, IsObject, IsString } from 'class-validator';
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 import { TelegramMessageType } from 'src/models/telegram-mesage.model';
 import { TelegramSender } from 'src/models/telegram-sender.model';
 
@@ -20,4 +20,8 @@ export class TelegramMessagePayload {
 
   @IsObject()
   sender: TelegramSender;
+
+  @IsOptional()
+  @IsString()
+  cid?: string;
 };
