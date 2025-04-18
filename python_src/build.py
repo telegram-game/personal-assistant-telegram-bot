@@ -10,8 +10,8 @@ def create_or_load_model(config, from_model_path: str | None):
     model_version = model_config["model_version"]
     model_provider = ModelProvider()
     model = model_provider.get_model(model_version, model_config)
-    if device == "cuda":
-        model.set_device(device)
+    model.set_device(device)
+
     if from_model_path:
         model.load(from_model_path)
     return model
@@ -26,8 +26,7 @@ def build_model_with_multiple_data(name: str, from_model_path: str | None, data:
 
     model_provider = ModelProvider()
     model = model_provider.get_model(model_version, config)
-    if device == "cuda":
-        model.set_device(device)
+    model.set_device(device)
     
     if from_model_path:
         model.load(from_model_path)
@@ -46,8 +45,7 @@ def build_model(name: str, from_model_path: str | None, data: str):
 
     model_provider = ModelProvider()
     model = model_provider.get_model(model_version, config)
-    if device == "cuda":
-        model.set_device(device)
+    model.set_device(device)
     
     if from_model_path:
         model.load(from_model_path)

@@ -13,7 +13,7 @@ class HTTPClient:
                     response.raise_for_status()
                     return await self.handle_response(response)
         except aiohttp.ClientError as e:
-            print(f"Error: {e}")
+            print(f"Error: {e}", endpoint, "get")
             return self.handle_error(e)
         
     async def post(self, endpoint, data=None):
@@ -24,7 +24,7 @@ class HTTPClient:
                     response.raise_for_status()
                     return await self.handle_response(response)
         except aiohttp.ClientError as e:
-            print(f"Error: {e}")
+            print(f"Error: {e}", data, "post")
             return self.handle_error(e)
         
     async def handle_response(self, response):

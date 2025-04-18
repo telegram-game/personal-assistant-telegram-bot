@@ -2,7 +2,7 @@ import tiktoken
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from torch import nn
+from torch import le, nn
 from lib.layers.transformer_block import TransformerBlock
 from lib.layers.layer_norm import LayerNorm
 from lib.model import IModel
@@ -14,6 +14,11 @@ class GPTDataset(Dataset):
 
         # Tokenize the entire text
         token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
+        if (len(token_ids) <= max_length):
+            # If the text is shorter than max_length, pad it
+            token_ids += [50257] * (max_length - len(token_ids))
+            self.input_ids.append(torch.tensor(token_ids))
+            self.target_ids.append(torch.tensor([50257] * (max_length)))
 
         # Use a sliding window to chunk the book into overlapping sequences of max_length
         for i in range(0, len(token_ids) - max_length, stride):
@@ -32,6 +37,7 @@ class GPT2Model(IModel):
     def __init__(self, cfg):
         super(GPT2Model, self).__init__()
         self.tokenizer = tiktoken.get_encoding("gpt2")
+        self.tokenizer.encode
         self.config = cfg
 
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
@@ -127,7 +133,6 @@ class GPT2Model(IModel):
         num_workers = 0
 
         # Create dataset
-        print("jerry", data, self.tokenizer, max_length, stride)
         dataset = GPTDataset(data, self.tokenizer, max_length, stride)
 
         # Create dataloader

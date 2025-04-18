@@ -36,6 +36,7 @@ class BuildModelJob:
                 train_data_ids = [item["id"] for item in train_data]
                 await data_service.update_complete_train_data(ai_model_id, train_data_ids)
                 # Get the next batch of train data
+                train_data = []
                 train_data = await data_service.get_train_data(ai_model_id, 10)
 
             # Save the model

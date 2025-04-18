@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import { IsArray, IsNumber, IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class GetsForTrainPayload {
+  @IsNumber()
   @Transform(({ value }) => Number(value))
   aiModelId: number;
 
@@ -14,7 +15,7 @@ export class UpdateCompletedForTrainPayload {
   @IsNumber()
   aiModelId: number;
 
-  @IsArray({ each: true })
+  @IsArray()
   trainDataIds: number[];
 }
 
