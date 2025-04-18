@@ -2,7 +2,6 @@ import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
-  IsOptional,
   IsString,
   Max,
   Min,
@@ -40,7 +39,7 @@ export class EnvironmentTelegramBotVariables {
 
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
     if (
-      options.appName !== (process.env.APP_NAME || 'TELEGRAM_BOT_SERVICE')
+      options.appName !== process.env.APP_NAME
     ) {
       return {};
     }
@@ -92,6 +91,11 @@ export class EnvironmentDataVariables {
   @IsString()
   POSTGRESQL_HOST: string;
 
+  @IsNumber()
+  @Min(0)
+  @Max(65535)
+  POSTGRESQL_PORT: number;
+
   @IsString()
   POSTGRESQL_DB: string;
 
@@ -103,26 +107,24 @@ export class EnvironmentDataVariables {
   @Max(65535)
   REDIS_PORT: number;
 
-  @IsNumber()
-  @Min(0)
-  @Max(65535)
-  POSTGRESQL_PORT: number;
-
   @IsString()
   TELEGRAM_BOT_SERVICE_URL: string;
+
+  @IsString()
+  DATA_SERVICE_URL: string;
 
   @IsString()
   PREDICTION_SERVICE_URL: string;
 
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
     if (
-      options.appName !== (process.env.APP_NAME || 'DATA_SERVICE')
+      options.appName !== process.env.APP_NAME
     ) {
       return {};
     }
 
     const validatedConfig = plainToInstance(
-      EnvironmentTelegramBotVariables,
+      EnvironmentDataVariables,
       config,
       {
         enableImplicitConversion: true,
@@ -168,17 +170,17 @@ export class EnvironmentDataConsumerVariables {
   REDIS_PORT: number;
 
   @IsString()
-  TELEGRAM_BOT_SERVICE_URL: string;
+  DATA_SERVICE_URL: string;
 
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
     if (
-      options.appName !== (process.env.APP_NAME || 'DATA_CONSUMER')
+      options.appName !== process.env.APP_NAME
     ) {
       return {};
     }
 
     const validatedConfig = plainToInstance(
-      EnvironmentTelegramBotVariables,
+      EnvironmentDataConsumerVariables,
       config,
       {
         enableImplicitConversion: true,
