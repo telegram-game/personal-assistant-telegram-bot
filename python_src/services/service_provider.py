@@ -1,6 +1,6 @@
 from lib.model_provider import ModelProvider
 from services.data_service import DataService
-from services.job import BuildModelJob
+from services.job import BuildModelJob, PredictMessageJob
 import torch
 import os
 
@@ -50,6 +50,10 @@ class ServiceProvider:
                 model.load(model_path)
 
             self.service_data.add_service("prediction_service", model)
+
+            predict_message_job = PredictMessageJob(self)
+            predict_message_job.start()
+            self.service_data.add_service("predict_message_job", predict_message_job)
         elif app_name == "TRAIN_SERVICE":
             build_model_job = BuildModelJob(self)
             build_model_job.start()
@@ -57,7 +61,10 @@ class ServiceProvider:
 
     def stop(self):
         app_name = self.config["app_name"]
-        if app_name == "TRAIN_SERVICE":
+        if app_name == "PREDICTION_SERVICE":
+            predict_message_job = self.service_data.get_service("predict_message_job")
+            predict_message_job.stop()
+        elif app_name == "TRAIN_SERVICE":
             build_model_job = self.service_data.get_service("build_model_job")
             build_model_job.stop()
 

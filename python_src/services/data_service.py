@@ -27,3 +27,9 @@ class DataService:
             "aiModelId": ai_model_id,
             "path": path
         })
+    
+    async def update_ask_result(self, id: int, result: str):
+        return await self.client.post("internal/api/v1.0/telegram-messsages/ask-result", {
+            "id": id,
+            "result": result
+        })

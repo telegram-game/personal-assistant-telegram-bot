@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InternalHttpClientService } from "src/modules/http";
-import { SendMessagePayload } from "src/models/send-message.model";
 
 @Injectable()
 export class PredictionService {
@@ -16,6 +15,12 @@ export class PredictionService {
     predictText(prompt: string): Promise<void> {
         return this.internalHttpClientService.post(`${this.predictionServiceUrl}/internal/api/v1.0/predictions/text`, {
             prompt,
+        });
+    }
+
+    loadNewModel(path: string): Promise<void> {
+        return this.internalHttpClientService.post(`${this.predictionServiceUrl}/internal/api/v1.0/predictions/text/load`, {
+            path,
         });
     }
 }

@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { TelegramMessagePayload } from '../models/telegram-message.model';
+import { TelegramMessageAskResultPayload, TelegramMessagePayload } from '../models/telegram-message.model';
 import { TelegramMessageService } from '../services/telegram-message.service';
 import asyncLocalStorage from 'src/storage/async_local';
 
@@ -27,5 +27,13 @@ export class TelegramMessageController {
     @Body() data: TelegramMessagePayload,
   ): Promise<void> {
     await this.telegramMessageService.receiveTelegramMessageInternalProcess(data);
+  }
+
+  @Post('ask-result')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async askResult(
+    @Body() data: TelegramMessageAskResultPayload,
+  ): Promise<void> {
+    await this.telegramMessageService.askResult(data);
   }
 }

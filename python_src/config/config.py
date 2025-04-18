@@ -30,4 +30,5 @@ def get_config():
         "redis_password": os.getenv("REDIS_PASSWORD", None),
         "queue_prefix": "{prefix}:queues",
         "build_model_queue_name": "build-model-queue",
+        "predict_message_queue_name": "predict-message-queue",
     }

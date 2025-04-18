@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from 'src/modules/loggers/logger.service';
-import { TelegramMessagePayload } from '../models/telegram-message.model';
+import { TelegramMessageAskResultPayload, TelegramMessagePayload } from '../models/telegram-message.model';
 import { TelegramMessageRepository } from '../repositories/telegram-message.repository';
 import { TelegramMessageProducer } from 'src/modules/queue/producer/telegram-message-producer';
 import { TelegramBotMessages, TrainDataStatus } from '@prisma/client';
@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import { BusinessException } from 'src/exceptions';
 import { ERROR_CODES } from 'src/constants/errors';
 import { BuildModelProducer } from 'src/modules/queue/producer/build-model-producer';
+import { PredictMessageProducer } from 'src/modules/queue/producer/predict-message-producer';
 
 @Injectable()
 export class TelegramMessageService {
@@ -26,6 +27,7 @@ export class TelegramMessageService {
     private readonly aiModelRepository: AIModelRepository,
     private readonly telegramMessageProducer: TelegramMessageProducer,
     private readonly buildModelProducer: BuildModelProducer,
+    private readonly predictMessageProducer: PredictMessageProducer,
     private readonly telegramBotService: TelegramBotService,
     private readonly prismaService: PrismaService,
   ) {
@@ -46,6 +48,7 @@ export class TelegramMessageService {
     switch (data.type) {
       case TelegramMessageType.ASK:
         await this.processAskType(data);
+        break;
       case TelegramMessageType.TRAIN:
         await this.processTrainType(data);
         break;
@@ -60,10 +63,47 @@ export class TelegramMessageService {
     }
   }
 
+  public async askResult(data: TelegramMessageAskResultPayload): Promise<void> {
+    const message = await this.telegramMessageRepository.getById(data.id);
+    if (!message) {
+      return;
+    }
+
+    await this.prismaService.transaction(async () => {
+      await this.telegramMessageRepository.update(message.id, {
+        replyAt: new Date(),
+      });
+
+      await this.telegramBotService.sendMessage({
+        chatId: message.chatId,
+        message: data.result,
+        options: {
+          replyToMessageId: message.messageId,
+        },
+      });
+    }, [this.telegramMessageRepository]);
+  }
+
   private async processAskType(
     data: TelegramMessagePayload,
   ): Promise<void> {
-    // const preditedMessage = 
+    await this.prismaService.transaction(async () => {
+      const message = await this.storeMessage(data);
+      await this.predictMessageProducer.sendMessage({
+        id: message.id,
+        prompt: message.typeMessage,
+        maxTokens: 100,
+        cid: data.cid,
+      });
+      const askMessage = `Processing your question: "${message.typeMessage}"`;
+      await this.telegramBotService.sendMessage({
+        chatId: message.chatId,
+        message: askMessage,
+        options: {
+          replyToMessageId: message.messageId,
+        },
+      });
+    }, [this.telegramMessageRepository]);
   }
 
   private async processTrainType(

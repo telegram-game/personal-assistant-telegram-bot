@@ -31,6 +31,8 @@ class HTTPClient:
         if response.status == 200:
             response_json = await response.json()
             return response_json["data"]
+        elif response.status < 300:
+            return None
         else:
             body = await response.text()
             print(f"Error: {response.status} - {body}")
