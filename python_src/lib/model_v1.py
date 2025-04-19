@@ -15,10 +15,9 @@ class GPTDataset(Dataset):
         # Tokenize the entire text
         token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
         if (len(token_ids) <= max_length):
-            # If the text is shorter than max_length, pad it
-            token_ids += [50257] * (max_length - len(token_ids))
+            token_ids += [tokenizer.eos_token_id] * (max_length - len(token_ids))
             self.input_ids.append(torch.tensor(token_ids))
-            self.target_ids.append(torch.tensor([50257] * (max_length)))
+            self.target_ids.append(torch.tensor(token_ids))
 
         # Use a sliding window to chunk the book into overlapping sequences of max_length
         for i in range(0, len(token_ids) - max_length, stride):
@@ -37,7 +36,8 @@ class GPT2Model(IModel):
     def __init__(self, cfg):
         super(GPT2Model, self).__init__()
         self.tokenizer = tiktoken.get_encoding("gpt2")
-        self.tokenizer.encode
+        self.tokenizer.eos_token_id = 50256 # GPT2's EOS token ID
+
         self.config = cfg
 
         self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
@@ -76,8 +76,16 @@ class GPT2Model(IModel):
         flat = token_ids.squeeze(0) # remove batch dimension
         return self.tokenizer.decode(flat.tolist())
     
-    def predict(self, data, max_new_tokens=10, context_size=256):
+    def validate_train_data(self, data) -> str | None:
+        token_ids = self.tokenizer.encode(data, allowed_special={'|endoftext|>'})
+        if len(token_ids) < self.config["context_length"]:
+            return "Training data is too short. Minimum length is {}".format(self.config["context_length"])
+        
+        return None
+    
+    def predict(self, data, max_new_tokens=10):
         idx = self.encode(data).to(self.device)  # (batch, n_tokens)
+        context_size = self.config["context_length"]
 
         for _ in range(max_new_tokens):
 
@@ -107,16 +115,16 @@ class GPT2Model(IModel):
 
     def start_train(self, data, num_epochs):
         train_loader = self.create_data_loader(data)
-        print("Training...")
+        print("Training...", flush=True)
 
         with torch.no_grad(): # Disable gradient tracking for efficiency because we are not training, yet
             train_loss = self.calc_loss_loader(train_loader, self, self.device)
-            print("Train loss: ", train_loss)
+            print("Train loss: ", train_loss, flush=True)
         
         optimizer = torch.optim.AdamW(self.parameters(), lr=0.0004, weight_decay=0.1)
         self.train_model(train_loader, optimizer, self.device, num_epochs)
 
-        print ("Training completed.")
+        print ("Training completed.", flush=True)
         self.can_load = False
 
     def start_eval(self, data):
@@ -129,7 +137,7 @@ class GPT2Model(IModel):
         stride = self.config["stride"]
         batch_size = 2
         shuffle = True
-        drop_last = True
+        drop_last = False
         num_workers = 0
 
         # Create dataset
@@ -182,5 +190,5 @@ class GPT2Model(IModel):
                 global_step += 1
 
             # Print a sample text after each epoch
-            print (f"Epoch {epoch+1}/{num_epochs} completed.")
+            print (f"Epoch {epoch+1}/{num_epochs} completed.", flush=True)
         

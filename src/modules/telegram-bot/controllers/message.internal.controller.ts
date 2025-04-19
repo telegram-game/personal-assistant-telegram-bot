@@ -11,14 +11,14 @@ export class TelegramMessageController {
 
   @Post('send')
   @HttpCode(HttpStatus.ACCEPTED)
-  async send(
-    @Body() data: SendMessagePayload,
-  ): Promise<void> {
+  async send(@Body() data: SendMessagePayload): Promise<void> {
     await this.telegramService.send(data.chatId, data.message, {
-      reply_parameters: data.options?.replyParameters ? {
-        message_id: data.options.replyParameters?.messageId,
-        chat_id: data.options.replyParameters?.chatId,
-      } : undefined,
+      reply_parameters: data.options?.replyParameters
+        ? {
+            message_id: data.options.replyParameters?.messageId,
+            chat_id: data.options.replyParameters?.chatId,
+          }
+        : undefined,
       reply_to_message_id: data.options?.replyToMessageId,
       message_thread_id: data.options?.messageThreadId,
     });

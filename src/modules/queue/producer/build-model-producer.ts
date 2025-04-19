@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  TelegramMessage,
-  TelegramMessageOptions,
-} from '../models/telegram-message.model';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { BaseProducer } from './base-producer';
@@ -26,6 +22,7 @@ export class BuildModelProducer extends BaseProducer<BuildModel> {
       attempts: 10, // hard code retry to 10 times
       backoff: 10000, // 10 seconds
       priority: options?.priority || QueuePriority.Normal,
+      timeout: options?.timeout || 60000 * 30, // 30 minutes
     });
     this.logger.info('sent message:', message, this.sendMessage.name);
   }

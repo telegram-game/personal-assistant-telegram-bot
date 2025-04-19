@@ -4,7 +4,10 @@ import { BullModule } from '@nestjs/bull';
 import { QUEUE_PREFIX, TELEGRAM_MESSAGE_QUEUE } from 'src/constants';
 import { TelegramMessageConsumer } from './consumer/telegram-message-consumer';
 import { DataService } from '../shared/services/data-service.service';
-import { InternalHttpClientService, SINGLE_INTERNAL_HTTP_CLIENT } from '../http';
+import {
+  InternalHttpClientService,
+  SINGLE_INTERNAL_HTTP_CLIENT,
+} from '../http';
 import { TelegramBotService } from '../shared/services/telegram-bot-service.service';
 
 @Module({
@@ -34,26 +37,41 @@ import { TelegramBotService } from '../shared/services/telegram-bot-service.serv
     }),
     BullModule.registerQueue({
       name: TELEGRAM_MESSAGE_QUEUE,
+      settings: {
+        lockDuration: 30000,
+      },
     }),
   ],
   providers: [
     TelegramMessageConsumer,
     {
       provide: DataService,
-      useFactory(configService: ConfigService, internalHttpClientService: InternalHttpClientService) {
-        const dataService = new DataService(configService, internalHttpClientService);
+      useFactory(
+        configService: ConfigService,
+        internalHttpClientService: InternalHttpClientService,
+      ) {
+        const dataService = new DataService(
+          configService,
+          internalHttpClientService,
+        );
         return dataService;
       },
       inject: [ConfigService, SINGLE_INTERNAL_HTTP_CLIENT],
     },
     {
       provide: TelegramBotService,
-      useFactory(configService: ConfigService, internalHttpClientService: InternalHttpClientService) {
-        const telegramBotService = new TelegramBotService(configService, internalHttpClientService);
+      useFactory(
+        configService: ConfigService,
+        internalHttpClientService: InternalHttpClientService,
+      ) {
+        const telegramBotService = new TelegramBotService(
+          configService,
+          internalHttpClientService,
+        );
         return telegramBotService;
       },
       inject: [ConfigService, SINGLE_INTERNAL_HTTP_CLIENT],
-    }
+    },
   ],
 })
 export class QueueConsumerModule {}

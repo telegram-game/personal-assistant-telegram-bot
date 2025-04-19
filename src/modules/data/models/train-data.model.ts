@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsNumber, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional } from 'class-validator';
 
 export class GetsForTrainPayload {
   @IsNumber()
@@ -9,7 +9,7 @@ export class GetsForTrainPayload {
   @IsOptional()
   @Transform(({ value }) => Number(value))
   limit: number = 10;
-};
+}
 
 export class UpdateCompletedForTrainPayload {
   @IsNumber()

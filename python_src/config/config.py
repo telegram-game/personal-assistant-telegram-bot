@@ -9,13 +9,13 @@ def get_model_config():
             "dataset_version": 2,
             "vocab_size": 50257,
             "emb_dim": 768,
-            "hidden_dim": 200,
-            "context_length": 256,
+            "hidden_dim": 128,
+            "context_length": 32,
             "drop_rate": 0.1,
             "n_layers": 12,
             "n_heads": 12,
             "qkv_bias": False,
-            "stride": 32,
+            "stride": 16,
         }
     
 def get_config():
@@ -31,4 +31,6 @@ def get_config():
         "queue_prefix": "{prefix}:queues",
         "build_model_queue_name": "build-model-queue",
         "predict_message_queue_name": "predict-message-queue",
+        "log_level": os.getenv("LOG_LEVEL", "INFO"),
+        "output_dir": os.getenv("OUTPUT_DIR", ""),
     }

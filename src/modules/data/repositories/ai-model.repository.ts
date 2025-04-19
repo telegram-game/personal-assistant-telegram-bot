@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { AIModels, TrainDataStatus, TraninData } from '@prisma/client';
+import { AIModels, TrainDataStatus } from '@prisma/client';
 import { PrismaService } from 'src/modules/prisma';
 import { BaseRepository } from 'src/modules/prisma/base/base.repository';
 
@@ -18,7 +18,7 @@ export class AIModelRepository extends BaseRepository {
       data: message,
     });
   }
-  
+
   public async getCurrent(): Promise<AIModels> {
     return this.client.aIModels.findFirst({
       where: {
@@ -36,7 +36,7 @@ export class AIModelRepository extends BaseRepository {
       where: {
         status: TrainDataStatus.PENDING,
       },
-    })
+    });
   }
 
   public async complete(id: number, path: string): Promise<void> {

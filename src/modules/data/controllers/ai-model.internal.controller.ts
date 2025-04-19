@@ -1,4 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { AIModelService } from '../services/ai-model.service';
 import { AIModels } from '@prisma/client';
 import { UpdateCompletePayload } from '../models/ai-model.model';
@@ -8,9 +15,7 @@ import { UpdateCompletePayload } from '../models/ai-model.model';
   version: ['1.0'],
 })
 export class AIModelController {
-  constructor(
-    private readonly aiModelService: AIModelService,
-  ) {}
+  constructor(private readonly aiModelService: AIModelService) {}
 
   @Get('/current')
   async getCurrent(): Promise<AIModels> {
@@ -19,9 +24,7 @@ export class AIModelController {
 
   @Post('/complete')
   @HttpCode(HttpStatus.ACCEPTED)
-  async complete(
-    @Body() data: UpdateCompletePayload,
-  ): Promise<void> {
+  async complete(@Body() data: UpdateCompletePayload): Promise<void> {
     const { aiModelId, path } = data;
     await this.aiModelService.complete(aiModelId, path);
   }

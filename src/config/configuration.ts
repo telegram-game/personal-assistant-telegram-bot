@@ -37,10 +37,12 @@ export default (): Configuration => {
     dataServiceUrl: process.env.DATA_SERVICE_URL,
     telegramToken: process.env.TELEGRAM_TOKEN,
     adminUsernames: process.env.ADMIN_USERNAMES
-      ? process.env.ADMIN_USERNAMES.split(',') : [],
+      ? process.env.ADMIN_USERNAMES.split(',')
+      : [],
     approveChatId: process.env.APPROVE_CHAT_ID,
 
     telegramBotServiceUrl: process.env.TELEGRAM_BOT_SERVICE_URL,
     predictionServiceUrl: process.env.PREDICTION_SERVICE_URL,
+    trainServiceUrl: process.env.TRAIN_SERVICE_URL,
   };
 };

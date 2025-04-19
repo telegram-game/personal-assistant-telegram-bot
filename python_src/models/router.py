@@ -11,3 +11,6 @@ class TrainTextModelPayload(BaseModel):
     data: list[str]
     from_model_path: Optional[str] = None
     name: str
+
+class TrainTextModelValidationPayload(BaseModel):
+    data: str

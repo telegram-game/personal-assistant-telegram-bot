@@ -5,15 +5,13 @@ import {
   TelegramBotAppModule,
 } from './app.module';
 
-export type AppName =
-  | 'TELEGRAM_BOT_SERVICE'
-  | 'DATA_SERVICE'
-  | 'DATA_CONSUMER';
+export type AppName = 'TELEGRAM_BOT_SERVICE' | 'DATA_SERVICE' | 'DATA_CONSUMER';
 
 @Injectable()
 export class AppProvider {
   public getAppModule() {
-    const appName: AppName = (process.env.APP_NAME || 'TELEGRAM_BOT_SERVICE') as AppName;
+    const appName: AppName = (process.env.APP_NAME ||
+      'TELEGRAM_BOT_SERVICE') as AppName;
     return (
       {
         TELEGRAM_BOT_SERVICE: TelegramBotAppModule,

@@ -32,7 +32,7 @@ def init(app):
                     headers=dict(response.headers), media_type=response.media_type)
         except BusinessException as e:
             print(f"Business exception: {e}")
-            return Response(content=json.dumps({"errorMessage": str(e)}).encode("utf-8"), status_code=500, media_type="application/json")
+            return Response(content=json.dumps({"detail": str(e)}).encode("utf-8"), status_code=500, media_type="application/json")
         except Exception as e:
             print(f"Error reading request body: {e}")
-            return Response(content=json.dumps({"errorMessage": "Internal Server Error"}).encode("utf-8"), status_code=500, media_type="application/json")
+            return Response(content=json.dumps({"detail": "Internal Server Error"}).encode("utf-8"), status_code=500, media_type="application/json")

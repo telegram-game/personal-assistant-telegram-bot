@@ -6,4 +6,4 @@ export class UpdateCompletePayload {
 
   @IsString()
   path: string;
-};
+}

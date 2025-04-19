@@ -32,9 +32,7 @@ export class TrainDataRepository extends BaseRepository {
     });
   }
 
-  public async updateProcessingForTrain(
-    aiModelId: number,
-  ): Promise<void> {
+  public async updateProcessingForTrain(aiModelId: number): Promise<void> {
     await this.client.traninData.updateMany({
       where: {
         aiModelId,
@@ -64,9 +62,7 @@ export class TrainDataRepository extends BaseRepository {
     });
   }
 
-  public async updateForTraining(
-    aiModelId: number,
-  ): Promise<number> {
+  public async updateForTraining(aiModelId: number): Promise<number> {
     const data = await this.client.traninData.updateMany({
       where: {
         status: TrainDataStatus.PENDING,
@@ -76,6 +72,6 @@ export class TrainDataRepository extends BaseRepository {
         status: TrainDataStatus.PROCESSING,
       },
     });
-    return data.count
+    return data.count;
   }
 }

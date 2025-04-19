@@ -76,5 +76,3 @@ export class DataAppModule {}
   ],
 })
 export class DataConsumerAppModule {}
-
-

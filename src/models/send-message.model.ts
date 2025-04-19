@@ -1,4 +1,4 @@
-import { Expose, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsObject,
   IsOptional,

@@ -17,7 +17,7 @@ export class AIModelService {
     private readonly predictionService: PredictionService,
   ) {
     this.approveChatId = this.configService.get<string>('approveChatId');
-   }
+  }
 
   public async getCurrent(): Promise<AIModels> {
     return await this.aiModelRepository.getCurrent();

@@ -4,7 +4,7 @@ from config.config import get_model_config, get_config
 from lib.model_provider import ModelProvider
 from data_util import save_model
 
-def create_or_load_model(config, from_model_path: str | None):
+def create_or_load_model(config, from_model_path: str | None = None):
     device = torch.device(config["device"] if torch.mps.is_available() else "cpu")
     model_config = config["model_config"]
     model_version = model_config["model_version"]

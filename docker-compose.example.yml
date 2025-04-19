@@ -17,7 +17,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
     volumes:
-       - ./compose-data/db:/data/postgres
+       - ./compose-data/db:/var/lib/postgresql/data
 
   db-migration:
     build:

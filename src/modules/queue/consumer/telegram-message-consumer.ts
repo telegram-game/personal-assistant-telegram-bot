@@ -7,9 +7,7 @@ import { DataService } from 'src/modules/shared/services/data-service.service';
 
 @Processor(TELEGRAM_MESSAGE_QUEUE)
 export class TelegramMessageConsumer extends BaseConsumer<TelegramMessage> {
-  constructor(
-    private readonly dataService: DataService,
-  ) {
+  constructor(private readonly dataService: DataService) {
     super();
     this.logger.log('UpdateLeaderBoardConsumer created');
   }
@@ -19,7 +17,6 @@ export class TelegramMessageConsumer extends BaseConsumer<TelegramMessage> {
     done: DoneCallback,
   ): Promise<void> {
     try {
-      
       await this.dataService.sendTelegramBotMessageInternal(job.data);
 
       this.logger.info(`handled message:- messageId:${job.id}`);

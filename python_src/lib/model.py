@@ -52,6 +52,10 @@ class IModel(nn.Module):
     def predict(self, data):
         pass
 
+    @abstractmethod
+    def validate_train_data(self, data):
+        pass
+
     def set_device(self, device):
         self.to(device)
         self.device = device

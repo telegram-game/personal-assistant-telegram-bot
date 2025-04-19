@@ -22,8 +22,8 @@ def init_routers(app, service_provider):
         if is_loadding():
             raise BusinessException("Model is loading, please try again later")
         
-        service = service_provider.get_service("prediction_service")
-        result = service.predict(data.prompt, max_new_tokens=100)
+        prediction_service = service_provider.get_service("prediction_service")
+        result = prediction_service.predict(data.prompt, max_new_tokens=100)
         return result
     
     @app.post("/internal/api/v1.0/predictions/text/load")

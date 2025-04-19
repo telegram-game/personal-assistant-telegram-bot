@@ -62,3 +62,4 @@ __pycache__
 python_src/output
 output
 .venv
+compose-data

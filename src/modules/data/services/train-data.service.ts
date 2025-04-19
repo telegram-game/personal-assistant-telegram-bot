@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Logger } from 'src/modules/loggers/logger.service';
-import { AIModels, TraninData } from '@prisma/client';
+import { TraninData } from '@prisma/client';
 import { TrainDataRepository } from '../repositories/train-data.repository';
 
 @Injectable()
 export class TrainDataService {
   private readonly logger = new Logger(TrainDataService.name);
-  constructor(
-    private readonly trainDataRepository: TrainDataRepository,
-  ) {}
+  constructor(private readonly trainDataRepository: TrainDataRepository) {}
 
   public async getForTrain(
     aiModelId: number,
@@ -17,9 +15,7 @@ export class TrainDataService {
     return await this.trainDataRepository.getForTrain(aiModelId, limit);
   }
 
-  public async updateProcessingForTrain(
-    aiModelId: number,
-  ): Promise<void> {
+  public async updateProcessingForTrain(aiModelId: number): Promise<void> {
     await this.trainDataRepository.updateProcessingForTrain(aiModelId);
   }
 
@@ -27,6 +23,9 @@ export class TrainDataService {
     aiModelId: number,
     trainDataIds: number[],
   ): Promise<void> {
-    await this.trainDataRepository.updateCompletedForTrain(aiModelId, trainDataIds);
+    await this.trainDataRepository.updateCompletedForTrain(
+      aiModelId,
+      trainDataIds,
+    );
   }
 }

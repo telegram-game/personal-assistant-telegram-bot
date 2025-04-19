@@ -4,13 +4,6 @@ from services.service_provider import ServiceProvider
 from middlewares.middlewares import init_middlewares
 from routers.routers import init_routers
 from unsync import unsync
-import asyncio
-# import nest_asyncio 
-# import uvicorn
-import signal
-
-# nest_asyncio.apply()
-
 
 app = FastAPI()
 

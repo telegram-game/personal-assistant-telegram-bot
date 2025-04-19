@@ -1,5 +1,17 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
-import { GetsForTrainPayload, UpdateCompletedForTrainPayload, UpdateProcessingForTrainPayload } from '../models/train-data.model';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  GetsForTrainPayload,
+  UpdateCompletedForTrainPayload,
+  UpdateProcessingForTrainPayload,
+} from '../models/train-data.model';
 import { TraninData } from '@prisma/client';
 import { TrainDataService } from '../services/train-data.service';
 
@@ -8,9 +20,7 @@ import { TrainDataService } from '../services/train-data.service';
   version: ['1.0'],
 })
 export class TrainDataController {
-  constructor(
-    private readonly trainDataService: TrainDataService,
-  ) {}
+  constructor(private readonly trainDataService: TrainDataService) {}
 
   @Get('/for-train')
   async getsForTrain(
@@ -26,7 +36,10 @@ export class TrainDataController {
     @Body() data: UpdateCompletedForTrainPayload,
   ): Promise<void> {
     const { aiModelId, trainDataIds } = data;
-    await this.trainDataService.updateCompletedForTrain(aiModelId, trainDataIds);
+    await this.trainDataService.updateCompletedForTrain(
+      aiModelId,
+      trainDataIds,
+    );
   }
 
   @Post('processing/for-train')

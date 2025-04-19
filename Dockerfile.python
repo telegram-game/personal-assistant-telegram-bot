@@ -31,21 +31,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 ################################################################################
 # Create a new stage to run the application with minimal runtime dependencies
 # where the necessary files are copied from the build stage.
-FROM base AS final
+FROM deps AS final
 
-# Run the application as a non-root user.
-USER python
-
-# Copy package.json so that package manager commands can be used.
-COPY --chown=python:python package.json .
+ENV PORT=$PORT
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
-COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY ./python_src .
 
 # Expose the port that the application listens on.
 EXPOSE $PORT
 
 # Run the application.
-CMD ["node","dist/src/main.js", ">", "/dev/stdout"]
+CMD ["uvicorn","--host=0.0.0.0", "--port=3000", "server:app"]

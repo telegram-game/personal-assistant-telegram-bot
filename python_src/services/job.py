@@ -3,15 +3,18 @@ from build import create_or_load_model
 import os
 import torch
 from abc import abstractmethod
+from services.logger import Logger
 
 class BasseJob:
-    def __init__(self, queue_name, queue_prefix, service_provider):
+    def __init__(self, queue_name, queue_prefix, service_provider, queue_lock_duration: int | None = 30000):
         config = service_provider.config
         self.config = config
         self.queue_name = queue_name
         self.queue_prefix = queue_prefix
+        self.queue_lock_duration = queue_lock_duration
         self.service_provider = service_provider
         self.is_started = False
+        self.logger = Logger("BaseJob")
 
     def get_redis_connection_str(self):
         redis_user = self.config["redis_user"]
@@ -25,7 +28,8 @@ class BasseJob:
         # This method should be implemented to start the job
         queue_name = self.queue_name
         queue_prefix = self.queue_prefix
-        self.worker = Worker(queue_name, self.process, {"connection": self.get_redis_connection_str(), "prefix": queue_prefix})
+        queue_lock_duration = self.queue_lock_duration
+        self.worker = Worker(queue_name, self.process, {"connection": self.get_redis_connection_str(), "prefix": queue_prefix, "lockDuration": queue_lock_duration})
         self.is_started = True
 
     def stop(self):
@@ -42,11 +46,12 @@ class BuildModelJob(BasseJob):
         config = service_provider.config
         queue_name = config["build_model_queue_name"]
         queue_prefix = config["queue_prefix"]
-        super().__init__(queue_name, queue_prefix, service_provider)
+        queue_lock_duration = 60000 *  30 # 30 minutes
+        super().__init__(queue_name, queue_prefix, service_provider, queue_lock_duration=queue_lock_duration)
 
     async def process(self, job: Job, job_token: str):
         # job.data will include the data added to the queue
-        print("Processing job with data:", job.data, job_token)
+        self.logger.log(f"Processing job with data: {job.data}")
         try:
             data_service = self.service_provider.service_data.get_service("data_service")
             ai_model_id = job.data["id"]
@@ -63,6 +68,8 @@ class BuildModelJob(BasseJob):
             # Load the data
             train_data: list = await data_service.get_train_data(ai_model_id, 10)
             while len(train_data) > 0:
+                # logger.debug("Processing with the data: %s", train_data)
+                self.logger.log(f"Processing with the data: {train_data}")
                 train_data_texts = [item["data"] for item in train_data]
                 for text in train_data_texts:
                     model.start_train(text, num_epochs=10)
@@ -75,14 +82,17 @@ class BuildModelJob(BasseJob):
                 train_data = await data_service.get_train_data(ai_model_id, 10)
 
             # Save the model
+            self.logger.log(f"Saving model to: {data_file_path}")
             if not os.path.exists("output"):
                 os.makedirs("output")
-            torch.save(model.state_dict(), data_file_path)
+            output_dir = self.config["output_dir"]
+            torch.save(model.state_dict(), f"{output_dir}{data_file_path}")
 
             # Update the model as complete
+            self.logger.log(f"Updating model {ai_model_id} as complete")
             await data_service.update_complete_ai_model(ai_model_id, data_file_path)
         except Exception as e:
-            print(f"Error processing job: {e}")
+            self.logger.log(f"Error processing job: {e}")
             # Handle the error (e.g., retry, log, etc.)
             raise e
         
@@ -91,11 +101,12 @@ class PredictMessageJob(BasseJob):
         config = service_provider.config
         queue_name = config["predict_message_queue_name"]
         queue_prefix = config["queue_prefix"]
-        super().__init__(queue_name, queue_prefix, service_provider)
+        queue_lock_duration = 60000 *  5 # 5 minutes
+        super().__init__(queue_name, queue_prefix, service_provider, queue_lock_duration=queue_lock_duration)
 
     async def process(self, job: Job, job_token: str):
         # job.data will include the data added to the queue
-        print("Processing job with data:", job.data, job_token)
+        self.logger.log(f"Processing job with data: {job.data}, {job_token}")
         try:
             data_service = self.service_provider.service_data.get_service("data_service")
             id = job.data["id"]
@@ -105,8 +116,9 @@ class PredictMessageJob(BasseJob):
             prediction_service = self.service_provider.get_service("prediction_service")
             result = prediction_service.predict(prompt, max_new_tokens=max_new_tokens)
             await data_service.update_ask_result(id, result)
+            self.logger.log(f"Prediction result: {result}")
             
         except Exception as e:
-            print(f"Error processing job: {e}")
+            self.logger.log(f"Error processing job: {e}")
             # Handle the error (e.g., retry, log, etc.)
             raise e

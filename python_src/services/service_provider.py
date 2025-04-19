@@ -45,7 +45,8 @@ class ServiceProvider:
             current_model = await data_service.get_current_model()
             print(f"Current model: {current_model}")
             if current_model is not None:
-                model_path = f"{os.getcwd()}/{current_model["path"]}"
+                output_dir = self.config["output_dir"]
+                model_path = f"{os.getcwd()}/{output_dir}{current_model["path"]}"
                 print(f"Loading model from path: {model_path}")     
                 model.load(model_path)
 

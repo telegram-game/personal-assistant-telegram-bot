@@ -29,4 +29,5 @@ export interface Configuration {
   // For data service
   telegramBotServiceUrl: string;
   predictionServiceUrl: string;
+  trainServiceUrl: string;
 }

@@ -4,7 +4,10 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { BaseProducer } from './base-producer';
 import { PREDICT_MESSAGE_QUEUE, QueuePriority } from 'src/constants';
-import { PredictMessage, PredictMessageOptions } from '../models/predict-message.model';
+import {
+  PredictMessage,
+  PredictMessageOptions,
+} from '../models/predict-message.model';
 
 @Injectable()
 export class PredictMessageProducer extends BaseProducer<PredictMessage> {
@@ -22,6 +25,7 @@ export class PredictMessageProducer extends BaseProducer<PredictMessage> {
       attempts: 10, // hard code retry to 10 times
       backoff: 10000, // 10 seconds
       priority: options?.priority || QueuePriority.Normal,
+      timeout: options?.timeout || 60000 * 5, // 5 minute
     });
     this.logger.info('sent message:', message, this.sendMessage.name);
   }

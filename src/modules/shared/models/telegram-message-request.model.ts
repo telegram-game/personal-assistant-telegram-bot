@@ -14,4 +14,4 @@ export class TelegramMessageRequestPayload {
   message: string;
   originalMessage: string;
   sender: TelegramSender;
-};
+}

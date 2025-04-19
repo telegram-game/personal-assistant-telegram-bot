@@ -15,14 +15,25 @@ import { TrainDataService } from './services/train-data.service';
 
 @Module({
   imports: [PrismaModule, QueueProducerModule, SharedModule],
-  controllers: [TelegramMessageController, AIModelController, TrainDataController],
-  providers: [TelegramMessageRepository, TelegramMessageService, TrainDataRepository, TrainDataService, AIModelRepository, AIModelService],
+  controllers: [
+    TelegramMessageController,
+    AIModelController,
+    TrainDataController,
+  ],
+  providers: [
+    TelegramMessageRepository,
+    TelegramMessageService,
+    TrainDataRepository,
+    TrainDataService,
+    AIModelRepository,
+    AIModelService,
+  ],
 })
 export class DataModule {}
 
 @Module({
-    imports: [QueueProducerModule, QueueConsumerModule],
-    controllers: [],
-    providers: [],
-  })
-  export class DataConsumerModule {}
+  imports: [QueueProducerModule, QueueConsumerModule],
+  controllers: [],
+  providers: [],
+})
+export class DataConsumerModule {}

@@ -38,9 +38,7 @@ export class EnvironmentTelegramBotVariables {
   APPROVE_CHAT_ID: string;
 
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
-    if (
-      options.appName !== process.env.APP_NAME
-    ) {
+    if (options.appName !== process.env.APP_NAME) {
       return {};
     }
 
@@ -116,20 +114,17 @@ export class EnvironmentDataVariables {
   @IsString()
   PREDICTION_SERVICE_URL: string;
 
+  @IsString()
+  TRAIN_SERVICE_URL: string;
+
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
-    if (
-      options.appName !== process.env.APP_NAME
-    ) {
+    if (options.appName !== process.env.APP_NAME) {
       return {};
     }
 
-    const validatedConfig = plainToInstance(
-      EnvironmentDataVariables,
-      config,
-      {
-        enableImplicitConversion: true,
-      },
-    );
+    const validatedConfig = plainToInstance(EnvironmentDataVariables, config, {
+      enableImplicitConversion: true,
+    });
     const errors = validateSync(validatedConfig, {
       skipMissingProperties: false,
     });
@@ -173,9 +168,7 @@ export class EnvironmentDataConsumerVariables {
   DATA_SERVICE_URL: string;
 
   validate(config: Record<string, unknown>, options: Record<string, unknown>) {
-    if (
-      options.appName !== process.env.APP_NAME
-    ) {
+    if (options.appName !== process.env.APP_NAME) {
       return {};
     }
 
