@@ -96,8 +96,6 @@ services:
       - REDIS_HOST=cache
       - REDIS_PORT=6379
       - DATA_SERVICE_URL=http://data-api-service:3000
-    volumes:
-      - ./compose-data/output:/output
     depends_on:
       cache: 
         condition: service_started
