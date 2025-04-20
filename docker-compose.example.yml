@@ -47,15 +47,16 @@ services:
       - PORT=3000
       - LOG_LEVEL=debug
       - DATA_SERVICE_URL=http://data-api-service:3000
-      - TELEGRAM_TOKEN=your_telegram_token
-      - APPROVE_CHAT_ID=your_approve_chat_id
+      - TELEGRAM_TOKEN=<your_telegram_token>
+      - APPROVE_CHAT_ID=<your_approve_chat_id>
+      - ADMIN_USERNAMES=<your_admin_usernames>
 
   data-api-service:
     build:
       context: .
       dockerfile: Dockerfile
     networks:
-      - my-network 
+      - my-network
     environment:
       - APP_NAME=DATA_SERVICE
       - ENVIRONMENT=local
@@ -69,15 +70,17 @@ services:
       - POSTGRESQL_DB=personal_assistent_db
       - REDIS_HOST=cache
       - REDIS_PORT=6379
+      - APPROVE_CHAT_ID=<your_approve_chat_id>
       - TELEGRAM_BOT_SERVICE_URL=http://telegram-bot-service:3000
       - DATA_SERVICE_URL=http://data-api-service:3000
       - PREDICTION_SERVICE_URL=http://prediction-service:3000
+      - TRAIN_SERVICE_URL=http://train-service:3000
     depends_on:
       db-migration: 
         condition: service_completed_successfully
       cache: 
         condition: service_started
-
+  
   data-consumer-service:
     build:
       context: .
@@ -92,8 +95,63 @@ services:
       - LOG_LEVEL=debug
       - REDIS_HOST=cache
       - REDIS_PORT=6379
-      - TELEGRAM_BOT_SERVICE_URL=http://telegram-bot-service:3000
       - DATA_SERVICE_URL=http://data-api-service:3000
+    volumes:
+      - ./compose-data/output:/output
+    depends_on:
+      cache: 
+        condition: service_started
+
+  prediction-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      - my-network 
+    environment:
+      - APP_NAME=PREDICTION_SERVICE
+      - LOG_LEVEL=DEBUG
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - DATA_SERVICE_URL=http://data-api-service:3000
+    volumes:
+      - ./compose-data/output:/usr/src/app/output
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 12G
+        reservations:
+          cpus: '2'
+          memory: 8G
+    depends_on:
+      data-api-service: 
+        condition: service_started
+      cache: 
+        condition: service_started
+
+  train-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    networks:
+      - my-network 
+    environment:
+      - APP_NAME=TRAIN_SERVICE
+      - LOG_LEVEL=DEBUG
+      - REDIS_HOST=cache
+      - REDIS_PORT=6379
+      - DATA_SERVICE_URL=http://data-api-service:3000
+    volumes:
+      - ./compose-data/output:/usr/src/app/output
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 12G
+        reservations:
+          cpus: '2'
+          memory: 8G
     depends_on:
       cache: 
         condition: service_started
