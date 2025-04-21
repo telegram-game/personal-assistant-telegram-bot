@@ -219,7 +219,6 @@ Note: Please setup the `DATABASE_URL` point to the database engine we want to mi
     ```
     $ yarn start:dev:data-consumer
     ```
-    ```
 * Run the command to run the prediction service
     ```
     $ yarn start:dev:prediction
